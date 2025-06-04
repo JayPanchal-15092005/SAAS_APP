@@ -41,15 +41,30 @@ export const getAllCompanions = async ({ limit = 10, page = 1, subject, topic }:
     return companions;
 }
 
-export const getCompanion = async (id: string) => {
+export const getCompanion = async (slug: string) => {
     const supabase = createSupabaseClient();
 
     const { data, error } = await supabase
         .from('companions')
         .select()
-        .eq('id', id);
+        .eq('slug', slug);
 
-    if(error) return console.log(error);
+    // if(error) return console.log(error);
+
+    // return data[0];
+
+     if (error) {
+        // Log the error for debugging purposes
+        console.error("Error fetching companion:", error.message);
+        // Throw an error so the calling component can catch it or rely on Next.js error handling
+        throw new Error(error.message || 'Failed to fetch companion');
+    }
+
+    // If no data is found, data will be an empty array.
+    // Return null or undefined to indicate no companion was found.
+    if (!data || data.length === 0) {
+        return null; // Or undefined, but null is often clearer for "not found"
+    }
 
     return data[0];
 }

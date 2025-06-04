@@ -6,13 +6,22 @@ import Image from "next/image";
 import CompanionComponent from "@/components/CompanionComponent";
 
 interface CompanionSessionPageProps {
-  params: Promise<{ id: string }>;
+  params: Promise<{ slug: string }>;
 }
 
 const CompanionSession = async ({ params }: CompanionSessionPageProps) => {
-  const { id } = await params;
-  const companion = await getCompanion(id);
+  const { slug } = await params;
+  const companion = await getCompanion(slug);
   const user = await currentUser();
+
+   if (!user) {
+    redirect("/sign-in");
+  }
+
+   // If companion is null (not found in DB) or does not have a name property, redirect
+  if (!companion || !companion.name) { // Add !companion check here
+    redirect("/companions"); // Redirect to a page where companions are listed
+  }
 
   const { name, subject, title, topic, duration } = companion;
 
@@ -50,7 +59,7 @@ const CompanionSession = async ({ params }: CompanionSessionPageProps) => {
 
       <CompanionComponent
         {...companion}
-        companionId={id}
+        companionId={slug}
         userName={user.firstName!}
         userImage={user.imageUrl!}
       />
